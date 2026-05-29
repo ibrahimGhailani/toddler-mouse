@@ -173,6 +173,169 @@
       from { background: rgba(0,0,0,0.18); }
       to   { background: rgba(255,80,80,0.55); }
     }
+
+    /* ── Settings screen ── */
+    #settings-screen {
+      display: none;
+      background: #4D96FF;
+      z-index: 200;
+      gap: 32px;
+    }
+    #settings-screen h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      color: #fff;
+      text-shadow: 0 4px 0 rgba(0,0,0,0.15);
+      letter-spacing: 2px;
+    }
+    .settings-card {
+      background: rgba(255,255,255,0.18);
+      border-radius: 24px;
+      padding: 24px 32px;
+      width: min(380px, 85vw);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(6px);
+    }
+    .settings-label {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      color: #fff;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    /* Size picker */
+    .size-preview-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 140px;
+    }
+    #size-preview-circle {
+      border-radius: 50%;
+      background: #FFD93D;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+      flex-shrink: 0;
+    }
+    .size-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #size-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.35);
+      outline: none;
+      cursor: pointer;
+    }
+    #size-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      cursor: pointer;
+    }
+    #size-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      border: none;
+      cursor: pointer;
+    }
+    #size-value {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: #fff;
+      font-weight: bold;
+      width: 42px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    /* Toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .toggle {
+      position: relative;
+      width: 56px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.25);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle input:checked + .toggle-track { background: #6BCB77; }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-track::after { transform: translateX(26px); }
+    .toggle-label {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      color: #fff;
+      font-weight: bold;
+    }
+    /* Duration picker (same style as size) */
+    #duration-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: center;
+      transition: opacity 0.2s;
+    }
+    #duration-row.disabled { opacity: 0.35; pointer-events: none; }
+    #duration-value {
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      color: #fff;
+      font-weight: bold;
+      width: 80px;
+      text-align: center;
+    }
+    /* Play button */
+    #settings-play-btn {
+      width: min(280px, 65vw);
+      padding: 18px 0;
+      border: none;
+      border-radius: 60px;
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      font-weight: bold;
+      background: #6BCB77;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+      transition: transform 0.1s, box-shadow 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      letter-spacing: 1px;
+    }
+    #settings-play-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
@@ -186,6 +349,39 @@
   <p>Choose a mode</p>
   <button class="mode-btn" id="endless-btn">Endless</button>
   <button class="mode-btn" id="survival-btn">Survival</button>
+</div>
+
+<!-- Endless settings -->
+<div id="settings-screen" class="screen">
+  <h1>Endless</h1>
+
+  <div class="settings-card">
+    <div class="settings-label">Circle Size</div>
+    <div class="size-preview-wrap">
+      <div id="size-preview-circle"></div>
+    </div>
+    <div class="size-slider-row">
+      <input type="range" id="size-slider" min="5" max="40" step="1" value="20">
+      <div id="size-value">20%</div>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="timer-toggle">
+        <div class="toggle-track"></div>
+      </label>
+      <span class="toggle-label">Auto-move timer</span>
+    </div>
+    <div id="duration-row" class="disabled">
+      <button class="size-btn" id="dur-down">−</button>
+      <div id="duration-value">3 sec</div>
+      <button class="size-btn" id="dur-up">+</button>
+    </div>
+  </div>
+
+  <button id="settings-play-btn">Play!</button>
 </div>
 
 <!-- Game -->
@@ -228,13 +424,20 @@
   let busy = false;
   let audioCtx = null;
 
-  const modeScreen    = document.getElementById('mode-screen');
-  const gameScreen    = document.getElementById('game-screen');
+  // Endless settings
+  let endlessSize     = 20;   // % of min(vw,vh)
+  let endlessTimer    = false; // auto-move timer enabled
+  let endlessDuration = 3;    // seconds before auto-move
+  let autoMoveTimeout = null;
+
+  const modeScreen     = document.getElementById('mode-screen');
+  const settingsScreen = document.getElementById('settings-screen');
+  const gameScreen     = document.getElementById('game-screen');
   const gameoverScreen = document.getElementById('gameover-screen');
-  const circleEl      = document.getElementById('circle');
-  const clickCountEl  = document.getElementById('click-count');
-  const timerPill     = document.getElementById('timer-pill');
-  const finalScoreEl  = document.getElementById('final-score');
+  const circleEl       = document.getElementById('circle');
+  const clickCountEl   = document.getElementById('click-count');
+  const timerPill      = document.getElementById('timer-pill');
+  const finalScoreEl   = document.getElementById('final-score');
 
   // ── Audio ──────────────────────────────────────────────────────────────────
   function getAudio() {
@@ -412,15 +615,17 @@
       }
       placeCircle(true);
       busy = false;
+      scheduleAutoMove();
     }, 320);
   }
 
   // ── Start game ─────────────────────────────────────────────────────────────
   function startGame(selectedMode) {
     mode        = selectedMode;
-    circleSize  = START_SIZE;
+    circleSize  = (mode === 'endless') ? endlessSize : START_SIZE;
     totalClicks = 0;
     levelClicks = 0;
+    clearTimeout(autoMoveTimeout);
 
     bgColor     = COLORS[Math.floor(Math.random() * COLORS.length)];
     circleColor = pickColor(bgColor);
@@ -436,18 +641,105 @@
     } else {
       timerPill.style.display = 'none';
       clearInterval(timerInterval);
+      scheduleAutoMove();
     }
 
     updateHUD();
     placeCircle(true);
   }
 
+  // ── Settings screen ────────────────────────────────────────────────────────
+  const sizePreview   = document.getElementById('size-preview-circle');
+  const sizeValueEl   = document.getElementById('size-value');
+  const sizeSlider    = document.getElementById('size-slider');
+  const durationRow   = document.getElementById('duration-row');
+  const durationValEl = document.getElementById('duration-value');
+  const timerToggle   = document.getElementById('timer-toggle');
+
+  const DUR_MIN = 1;
+  const DUR_MAX = 10;
+
+  function updateSizePreview() {
+    // Scale preview so 40% = 140px, proportionally smaller for smaller sizes
+    const previewPx = (endlessSize / 40) * 140;
+    sizePreview.style.width  = previewPx + 'px';
+    sizePreview.style.height = previewPx + 'px';
+    sizeValueEl.textContent  = endlessSize + '%';
+    sizeSlider.value = endlessSize;
+  }
+
+  function updateDurationDisplay() {
+    durationValEl.textContent = endlessDuration + ' sec';
+    durationRow.classList.toggle('disabled', !endlessTimer);
+  }
+
+  sizeSlider.addEventListener('input', () => {
+    endlessSize = parseInt(sizeSlider.value);
+    updateSizePreview();
+  });
+
+  document.getElementById('dur-down').addEventListener('click', () => {
+    if (endlessDuration > DUR_MIN) { endlessDuration--; updateDurationDisplay(); }
+  });
+  document.getElementById('dur-up').addEventListener('click', () => {
+    if (endlessDuration < DUR_MAX) { endlessDuration++; updateDurationDisplay(); }
+  });
+
+  timerToggle.addEventListener('change', () => {
+    endlessTimer = timerToggle.checked;
+    updateDurationDisplay();
+  });
+
+  function openSettings() {
+    modeScreen.style.display     = 'none';
+    settingsScreen.style.display = 'flex';
+    updateSizePreview();
+    updateDurationDisplay();
+  }
+
+  document.getElementById('settings-play-btn').addEventListener('click', () => {
+    settingsScreen.style.display = 'none';
+    startGame('endless');
+  });
+
+  // ── Auto-move timer (endless) ───────────────────────────────────────────────
+  function scheduleAutoMove() {
+    clearTimeout(autoMoveTimeout);
+    if (mode !== 'endless' || !endlessTimer) return;
+    autoMoveTimeout = setTimeout(() => {
+      if (!busy) {
+        circleColor = pickColor(bgColor);
+        placeCircle(true);
+        scheduleAutoMove();
+      } else {
+        // retry shortly if mid-animation
+        autoMoveTimeout = setTimeout(scheduleAutoMove, 100);
+      }
+    }, endlessDuration * 1000);
+  }
+
   // ── Buttons ────────────────────────────────────────────────────────────────
-  document.getElementById('endless-btn').addEventListener('click',  () => startGame('endless'));
+  document.getElementById('endless-btn').addEventListener('click',  openSettings);
   document.getElementById('survival-btn').addEventListener('click', () => startGame('survival'));
   document.getElementById('play-again-btn').addEventListener('click', () => {
     gameoverScreen.style.display = 'none';
+    if (mode === 'endless') {
+      settingsScreen.style.display = 'flex';
+    } else {
+      modeScreen.style.display = 'flex';
+    }
+  });
+
+  // ── Esc → return to front page ────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    clearInterval(timerInterval);
+    clearTimeout(autoMoveTimeout);
+    gameScreen.style.display     = 'none';
+    settingsScreen.style.display = 'none';
+    gameoverScreen.style.display = 'none';
     modeScreen.style.display     = 'flex';
+    document.body.style.background = '#4D96FF';
   });
 
   // Unlock audio on first interaction (iOS)
