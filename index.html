@@ -14,6 +14,28 @@
       font-family: 'Arial Rounded MT Bold', 'Nunito', Arial, sans-serif;
       background: #4D96FF;
       touch-action: manipulation;
+      cursor: none;
+    }
+
+    /* ── Custom cursor ── */
+    #cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 52px;
+      line-height: 1;
+      transform: translate(-20%, -10%);
+      transition: transform 0.08s ease-out;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+      user-select: none;
+    }
+    #cursor.clicking {
+      animation: cursor-pop 0.2s ease-out forwards;
+    }
+    @keyframes cursor-pop {
+      0%   { transform: translate(-20%, -10%) scale(1); }
+      40%  { transform: translate(-20%, -10%) scale(1.5) rotate(-20deg); }
+      100% { transform: translate(-20%, -10%) scale(1) rotate(0deg); }
     }
 
     /* ── Screens ── */
@@ -154,6 +176,9 @@
   </style>
 </head>
 <body>
+
+<!-- Custom cursor -->
+<div id="cursor">👆</div>
 
 <!-- Mode select -->
 <div id="mode-screen" class="screen">
@@ -402,6 +427,25 @@
     const ctx = getAudio();
     if (ctx.state === 'suspended') ctx.resume();
   }, { once: true });
+
+  // ── Custom cursor ──────────────────────────────────────────────────────────
+  const cursorEl = document.getElementById('cursor');
+
+  document.addEventListener('mousemove', e => {
+    cursorEl.style.left = e.clientX + 'px';
+    cursorEl.style.top  = e.clientY + 'px';
+  });
+
+  document.addEventListener('mousedown', () => {
+    cursorEl.classList.remove('clicking');
+    void cursorEl.offsetWidth;
+    cursorEl.classList.add('clicking');
+  });
+  document.addEventListener('mouseup', () => cursorEl.classList.remove('clicking'));
+
+  // Hide cursor when mouse leaves window
+  document.addEventListener('mouseleave', () => cursorEl.style.opacity = '0');
+  document.addEventListener('mouseenter', () => cursorEl.style.opacity = '1');
 </script>
 </body>
 </html>
