@@ -16,6 +16,7 @@
       touch-action: manipulation;
       cursor: none;
     }
+    * { cursor: none !important; }
 
     /* ── Custom cursor ── */
     #cursor {
@@ -60,6 +61,18 @@
     #mode-screen p {
       font-size: clamp(1rem, 3vw, 1.4rem);
       color: rgba(255,255,255,0.85);
+    }
+    #mode-screen .tagline {
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+      font-weight: bold;
+      color: #fff;
+    }
+    #mode-screen .description {
+      font-size: clamp(0.85rem, 2.2vw, 1.1rem);
+      color: rgba(255,255,255,0.8);
+      max-width: min(480px, 80vw);
+      text-align: center;
+      line-height: 1.5;
     }
     .mode-btn {
       width: min(300px, 70vw);
@@ -346,6 +359,8 @@
 <!-- Mode select -->
 <div id="mode-screen" class="screen">
   <h1>Pop!</h1>
+  <p class="tagline">A clicking game for little hands 🖱️</p>
+  <p class="description">Help your toddler learn to use a mouse and build hand-eye coordination — just click the colourful circles to make them pop!</p>
   <p>Choose a mode</p>
   <button class="mode-btn" id="endless-btn">Endless</button>
   <button class="mode-btn" id="survival-btn">Survival</button>
