@@ -91,11 +91,55 @@
       transform: translateY(4px);
       box-shadow: 0 2px 0 rgba(0,0,0,0.2);
     }
-    #endless-btn { background: #6BCB77; color: #fff; }
+    #endless-btn  { background: #6BCB77; color: #fff; }
     #survival-btn { background: #FF6B6B; color: #fff; }
 
     /* Game */
     #game-screen { display: none; z-index: 10; }
+
+    /* ── Health bar (survival) ── */
+    #health-bar-wrap {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 10px;
+      background: rgba(0,0,0,0.15);
+      z-index: 60;
+      display: none;
+    }
+    #health-bar {
+      height: 100%;
+      width: 100%;
+      background: #6BCB77;
+      transition: width 0.1s linear, background 0.3s;
+    }
+
+    /* ── Wave banner (survival) ── */
+    #wave-banner {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 80;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #wave-banner.show {
+      animation: wave-anim 1.5s ease-in-out forwards;
+    }
+    @keyframes wave-anim {
+      0%   { opacity: 0; transform: scale(0.85); }
+      15%  { opacity: 1; transform: scale(1); }
+      75%  { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.05); }
+    }
+    #wave-banner span {
+      font-size: clamp(3rem, 12vw, 7rem);
+      color: #fff;
+      font-weight: bold;
+      text-shadow: 0 6px 0 rgba(0,0,0,0.2);
+      letter-spacing: 3px;
+    }
 
     /* HUD */
     #hud {
@@ -118,8 +162,8 @@
       backdrop-filter: blur(4px);
     }
 
-    /* Circle */
-    #circle {
+    /* ── Circles ── */
+    .circle {
       position: absolute;
       border-radius: 50%;
       cursor: none;
@@ -128,22 +172,26 @@
       -webkit-tap-highlight-color: transparent;
       will-change: transform;
     }
-    #circle.pop {
+    .circle.pop {
       animation: pop 0.32s cubic-bezier(0.2, 0, 0.4, 1) forwards;
     }
     @keyframes pop {
       0%   { transform: translate(-50%, -50%) scale(1); }
       100% { transform: translate(-50%, -50%) scale(30); }
     }
-
-    /* New circle entrance */
+    .circle.appear {
+      animation: appear 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
     @keyframes appear {
       0%   { transform: translate(-50%, -50%) scale(0); }
       70%  { transform: translate(-50%, -50%) scale(1.12); }
       100% { transform: translate(-50%, -50%) scale(1); }
     }
-    #circle.appear {
-      animation: appear 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    .circle.expire {
+      animation: expire 0.25s ease-out forwards;
+    }
+    @keyframes expire {
+      to { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
     }
 
     /* Game over */
@@ -160,6 +208,10 @@
     #gameover-screen .score {
       font-size: clamp(1.2rem, 4vw, 2rem);
       color: rgba(255,255,255,0.9);
+    }
+    #gameover-screen .wave-reached {
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      color: rgba(255,255,255,0.75);
     }
     #play-again-btn {
       width: min(280px, 65vw);
@@ -178,13 +230,6 @@
     #play-again-btn:active {
       transform: translateY(4px);
       box-shadow: 0 2px 0 rgba(0,0,0,0.2);
-    }
-
-    /* Survival: timer urgency pulse when low */
-    .timer-urgent { animation: urgency 0.6s ease-in-out infinite alternate; }
-    @keyframes urgency {
-      from { background: rgba(0,0,0,0.18); }
-      to   { background: rgba(255,80,80,0.55); }
     }
 
     /* ── Settings screen ── */
@@ -218,7 +263,6 @@
       align-items: center;
       justify-content: space-between;
     }
-    /* Size picker */
     .size-preview-wrap {
       display: flex;
       align-items: center;
@@ -273,7 +317,6 @@
       text-align: right;
       flex-shrink: 0;
     }
-    /* Toggle */
     .toggle-row {
       display: flex;
       align-items: center;
@@ -313,7 +356,6 @@
       color: #fff;
       font-weight: bold;
     }
-    /* Duration picker (same style as size) */
     #duration-row {
       display: flex;
       align-items: center;
@@ -329,7 +371,6 @@
       width: 80px;
       text-align: center;
     }
-    /* Play button */
     #settings-play-btn {
       width: min(280px, 65vw);
       padding: 18px 0;
@@ -403,15 +444,27 @@
 <div id="game-screen" class="screen">
   <div id="hud">
     <div class="hud-pill" id="click-count">0</div>
-    <div class="hud-pill" id="timer-pill" style="display:none">1:00</div>
+    <div class="hud-pill" id="wave-pill" style="display:none">Wave 1</div>
   </div>
-  <div id="circle"></div>
+  <!-- Endless-only circle -->
+  <div id="circle" class="circle"></div>
+</div>
+
+<!-- Health bar (survival) -->
+<div id="health-bar-wrap">
+  <div id="health-bar"></div>
+</div>
+
+<!-- Wave banner (survival) -->
+<div id="wave-banner">
+  <span id="wave-banner-text"></span>
 </div>
 
 <!-- Game over -->
 <div id="gameover-screen" class="screen">
-  <h1>Amazing!</h1>
+  <h1>Game Over!</h1>
   <div class="score" id="final-score"></div>
+  <div class="wave-reached" id="final-wave" style="display:none"></div>
   <button id="play-again-btn">Play Again</button>
 </div>
 
@@ -427,23 +480,30 @@
     '#FF6DB6', // pink
   ];
 
-  const MIN_SIZE    = 5;   // % of min(vw,vh) — game over below this
-  const START_SIZE  = 20;  // % of min(vw,vh)
-  const SHRINK_BY   = 3;   // percentage points per shrink
-  const CLICKS_PER_SHRINK = 10;
-  const LEVEL_TIME  = 60;  // seconds before auto-shrink
+  // ── Survival constants ──────────────────────────────────────────────────────
+  const WAVE_DURATION = 30000; // ms per wave
+  const START_HEALTH  = 10000; // ms
+  const MAX_HEALTH    = 15000; // ms health cap
 
-  let mode, bgColor, circleColor, circleSize;
-  let totalClicks, levelClicks;
-  let timerInterval, timeLeft;
-  let busy = false;
+  let mode, bgColor;
+  let totalClicks;
+  let busy = false; // endless-only animation lock
   let audioCtx = null;
 
   // Endless settings
-  let endlessSize     = 20;   // % of min(vw,vh)
-  let endlessTimer    = false; // auto-move timer enabled
-  let endlessDuration = 3;    // seconds before auto-move
+  let endlessSize     = 20;
+  let endlessTimer    = false;
+  let endlessDuration = 3;
   let autoMoveTimeout = null;
+  let circleColor; // endless-only
+
+  // Survival state
+  let circles          = [];
+  let healthMs         = 0;
+  let waveNum          = 1;
+  let waveStartTime    = 0;
+  let inWaveTransition = false;
+  let survivalInterval = null;
 
   const modeScreen     = document.getElementById('mode-screen');
   const settingsScreen = document.getElementById('settings-screen');
@@ -451,10 +511,15 @@
   const gameoverScreen = document.getElementById('gameover-screen');
   const circleEl       = document.getElementById('circle');
   const clickCountEl   = document.getElementById('click-count');
-  const timerPill      = document.getElementById('timer-pill');
+  const wavePill       = document.getElementById('wave-pill');
   const finalScoreEl   = document.getElementById('final-score');
+  const finalWaveEl    = document.getElementById('final-wave');
+  const healthBarWrap  = document.getElementById('health-bar-wrap');
+  const healthBarEl    = document.getElementById('health-bar');
+  const waveBanner     = document.getElementById('wave-banner');
+  const waveBannerText = document.getElementById('wave-banner-text');
 
-  // ── Audio ──────────────────────────────────────────────────────────────────
+  // ── Audio ───────────────────────────────────────────────────────────────────
   function getAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return audioCtx;
@@ -464,7 +529,6 @@
     const ctx = getAudio();
     if (ctx.state === 'suspended') ctx.resume();
 
-    // Major pentatonic C5 scale — always sounds pleasant
     const freqs = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
     const baseFreq = freqs[colorIndex % freqs.length];
 
@@ -506,16 +570,219 @@
     osc.stop(ctx.currentTime + 0.2);
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Helpers ─────────────────────────────────────────────────────────────────
   function pickColor(exclude) {
     const pool = COLORS.filter(c => c !== exclude);
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
+  function pickSurvivalColor() {
+    const used = new Set([bgColor, ...circles.map(c => COLORS[c.colorIdx])]);
+    const pool = COLORS.filter(c => !used.has(c));
+    const src  = pool.length > 0 ? pool : COLORS.filter(c => c !== bgColor);
+    return src[Math.floor(Math.random() * src.length)];
+  }
+
+  // ── Survival: wave difficulty ────────────────────────────────────────────────
+  // Wave 1: 1 circle, 20% size, 5s lifetime
+  // Each wave: +1 circle (max 3), -2% size (min 8%), -500ms lifetime (min 1500ms)
+  function waveCfg(w) {
+    return {
+      maxCircles: Math.min(3, Math.ceil(w / 2)),
+      circleSize: Math.max(8,    20   - (w - 1) * 2),
+      lifetimeMs: Math.max(1500, 5000 - (w - 1) * 500),
+    };
+  }
+
+  // More time for faster clicks: <500ms → +3s, >3s → +0.5s
+  function calcTimeBonus(elapsedMs) {
+    if (elapsedMs < 500)  return 3.0;
+    if (elapsedMs > 3000) return 0.5;
+    return 3.0 - (elapsedMs - 500) / 2500 * 2.5;
+  }
+
+  // ── Survival: overlap check ──────────────────────────────────────────────────
+  function posOk(x, y, r) {
+    return circles.every(c => {
+      const dx = c.x - x, dy = c.y - y;
+      return Math.sqrt(dx * dx + dy * dy) >= r + c.px / 2 + 16;
+    });
+  }
+
+  // ── Survival: spawn a circle ─────────────────────────────────────────────────
+  function spawnCircle() {
+    if (inWaveTransition || mode !== 'survival') return;
+    const cfg = waveCfg(waveNum);
+    if (circles.length >= cfg.maxCircles) return;
+
+    const color    = pickSurvivalColor();
+    const colorIdx = COLORS.indexOf(color);
+
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const px = cfg.circleSize / 100 * Math.min(vw, vh);
+    const r  = px / 2;
+
+    let x, y, attempts = 0;
+    do {
+      x = r + Math.random() * (vw - 2 * r);
+      y = r + Math.random() * (vh - 2 * r);
+      attempts++;
+    } while (attempts < 25 && !posOk(x, y, r));
+
+    const el = document.createElement('div');
+    el.className = 'circle appear';
+    el.style.cssText = `left:${x}px;top:${y}px;width:${px}px;height:${px}px;background-color:${color}`;
+    gameScreen.appendChild(el);
+
+    const circObj = { el, colorIdx, x, y, px, appearedAt: Date.now(), expiryTimer: null };
+
+    el.addEventListener('click', () => onSurvivalCircleClick(circObj));
+    el.addEventListener('touchstart', e => { e.preventDefault(); onSurvivalCircleClick(circObj); }, { passive: false });
+
+    circObj.expiryTimer = setTimeout(() => expireCircle(circObj), cfg.lifetimeMs);
+    circles.push(circObj);
+  }
+
+  // ── Survival: circle expires without being clicked ───────────────────────────
+  function expireCircle(circObj) {
+    const idx = circles.indexOf(circObj);
+    if (idx === -1) return;
+    circles.splice(idx, 1);
+    clearTimeout(circObj.expiryTimer);
+
+    circObj.el.classList.remove('appear');
+    circObj.el.classList.add('expire');
+    setTimeout(() => {
+      circObj.el.remove();
+      if (!inWaveTransition && mode === 'survival') setTimeout(spawnCircle, 300);
+    }, 250);
+  }
+
+  // ── Survival: player clicks a circle ────────────────────────────────────────
+  function onSurvivalCircleClick(circObj) {
+    if (inWaveTransition) return;
+    const idx = circles.indexOf(circObj);
+    if (idx === -1) return;
+    circles.splice(idx, 1);
+    clearTimeout(circObj.expiryTimer);
+
+    const elapsed = Date.now() - circObj.appearedAt;
+    const bonus   = calcTimeBonus(elapsed);
+    healthMs      = Math.min(MAX_HEALTH, healthMs + bonus * 1000);
+
+    totalClicks++;
+    clickCountEl.textContent = totalClicks;
+
+    playChime(circObj.colorIdx);
+
+    const newBg = COLORS[circObj.colorIdx];
+    const el    = circObj.el;
+
+    el.classList.remove('appear');
+    void el.offsetWidth;
+    el.classList.add('pop');
+
+    setTimeout(() => {
+      document.body.style.background = newBg;
+      bgColor = newBg;
+    }, 160);
+
+    setTimeout(() => {
+      el.remove();
+      if (!inWaveTransition && mode === 'survival') spawnCircle();
+    }, 320);
+  }
+
+  // ── Survival: health bar ─────────────────────────────────────────────────────
+  function updateHealthBar() {
+    const pct = healthMs / MAX_HEALTH * 100;
+    healthBarEl.style.width = pct + '%';
+    if (pct > 50)      healthBarEl.style.background = '#6BCB77';
+    else if (pct > 25) healthBarEl.style.background = '#FF9A3C';
+    else               healthBarEl.style.background = '#FF6B6B';
+  }
+
+  // ── Survival: main tick (100ms) ──────────────────────────────────────────────
+  function survivalTick() {
+    healthMs -= 100;
+    if (healthMs <= 0) {
+      healthMs = 0;
+      updateHealthBar();
+      triggerGameOver();
+      return;
+    }
+    updateHealthBar();
+
+    if (!inWaveTransition && Date.now() - waveStartTime >= WAVE_DURATION) {
+      startWaveTransition();
+    }
+  }
+
+  // ── Survival: wave transition ────────────────────────────────────────────────
+  function startWaveTransition() {
+    inWaveTransition = true;
+    clearInterval(survivalInterval);
+
+    circles.forEach(c => {
+      clearTimeout(c.expiryTimer);
+      c.el.classList.remove('appear');
+      c.el.classList.add('expire');
+      setTimeout(() => c.el.remove(), 250);
+    });
+    circles = [];
+
+    waveNum++;
+    wavePill.textContent = `Wave ${waveNum}`;
+
+    waveBannerText.textContent = `Wave ${waveNum}`;
+    waveBanner.classList.remove('show');
+    void waveBanner.offsetWidth;
+    waveBanner.classList.add('show');
+
+    setTimeout(() => {
+      if (mode !== 'survival') return;
+      inWaveTransition = false;
+      waveStartTime = Date.now();
+      survivalInterval = setInterval(survivalTick, 100);
+
+      const cfg = waveCfg(waveNum);
+      for (let i = 0; i < cfg.maxCircles; i++) {
+        setTimeout(() => spawnCircle(), i * 250);
+      }
+    }, 1500);
+  }
+
+  // ── Game over ────────────────────────────────────────────────────────────────
+  function triggerGameOver() {
+    clearInterval(survivalInterval);
+    clearTimeout(autoMoveTimeout);
+    survivalInterval = null;
+    inWaveTransition = false;
+
+    circles.forEach(c => { clearTimeout(c.expiryTimer); c.el.remove(); });
+    circles = [];
+
+    healthBarWrap.style.display = 'none';
+    wavePill.style.display = 'none';
+
+    gameScreen.style.display = 'none';
+    gameoverScreen.style.display = 'flex';
+
+    finalScoreEl.textContent = `You popped ${totalClicks} bubble${totalClicks !== 1 ? 's' : ''}!`;
+    if (mode === 'survival') {
+      finalWaveEl.style.display = 'block';
+      finalWaveEl.textContent   = `Reached Wave ${waveNum}`;
+    } else {
+      finalWaveEl.style.display = 'none';
+    }
+  }
+
+  // ── Endless: place circle ────────────────────────────────────────────────────
   function circlePx() {
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
-    return (circleSize / 100) * Math.min(vw, vh);
+    return (endlessSize / 100) * Math.min(vw, vh);
   }
 
   function placeCircle(animate) {
@@ -537,137 +804,101 @@
     `;
 
     if (animate) {
-      void circleEl.offsetWidth; // reflow
+      void circleEl.offsetWidth;
       circleEl.classList.add('appear');
     }
   }
 
-  // ── HUD ───────────────────────────────────────────────────────────────────
-  function updateHUD() {
-    clickCountEl.textContent = totalClicks;
-    if (mode === 'survival') {
-      const m = Math.floor(timeLeft / 60);
-      const s = timeLeft % 60;
-      timerPill.textContent = `${m}:${s.toString().padStart(2,'0')}`;
-      timerPill.classList.toggle('timer-urgent', timeLeft <= 10);
-    }
-  }
-
-  // ── Shrink / timer ─────────────────────────────────────────────────────────
-  function resetLevelTimer() {
-    clearInterval(timerInterval);
-    timeLeft = LEVEL_TIME;
-    updateHUD();
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      updateHUD();
-      if (timeLeft <= 0) doShrink();
-    }, 1000);
-  }
-
-  function doShrink() {
-    circleSize -= SHRINK_BY;
-    levelClicks = 0;
-    if (circleSize <= MIN_SIZE) {
-      triggerGameOver();
-      return;
-    }
-    // Resize circle in place for a moment, then reset timer
-    const px = circlePx();
-    circleEl.style.width  = px + 'px';
-    circleEl.style.height = px + 'px';
-    resetLevelTimer();
-  }
-
-  // ── Game over ──────────────────────────────────────────────────────────────
-  function triggerGameOver() {
-    clearInterval(timerInterval);
-    gameScreen.style.display = 'none';
-    gameoverScreen.style.display = 'flex';
-    finalScoreEl.textContent = `You popped ${totalClicks} bubble${totalClicks !== 1 ? 's' : ''}!`;
-  }
-
-  // ── Click handler ──────────────────────────────────────────────────────────
+  // ── Endless: click handler ───────────────────────────────────────────────────
   circleEl.addEventListener('click', onCircleClick);
   circleEl.addEventListener('touchstart', e => { e.preventDefault(); onCircleClick(); }, { passive: false });
 
   gameScreen.addEventListener('click', e => {
-    if (e.target !== circleEl && !busy) playMiss();
+    if (!e.target.classList.contains('circle') && !busy && !inWaveTransition) playMiss();
   });
   gameScreen.addEventListener('touchstart', e => {
-    if (e.target !== circleEl && !busy) playMiss();
+    if (!e.target.classList.contains('circle') && !busy && !inWaveTransition) playMiss();
   }, { passive: true });
 
   function onCircleClick() {
-    if (busy) return;
+    if (busy || mode !== 'endless') return;
     busy = true;
 
     const colorIdx = COLORS.indexOf(circleColor);
     playChime(colorIdx);
 
     totalClicks++;
-    levelClicks++;
-    updateHUD();
+    clickCountEl.textContent = totalClicks;
 
     const newBg     = circleColor;
     const newCircle = pickColor(newBg);
 
-    // Start pop animation
     circleEl.classList.remove('appear');
     void circleEl.offsetWidth;
     circleEl.classList.add('pop');
 
-    // Swap bg color halfway through so it looks seamless
     setTimeout(() => {
       document.body.style.background = newBg;
-      bgColor      = newBg;
-      circleColor  = newCircle;
+      bgColor     = newBg;
+      circleColor = newCircle;
     }, 160);
 
-    // After animation: handle shrink then place new circle
     setTimeout(() => {
-      if (mode === 'survival' && levelClicks >= CLICKS_PER_SHRINK) {
-        circleSize -= SHRINK_BY;
-        levelClicks = 0;
-        if (circleSize <= MIN_SIZE) { triggerGameOver(); return; }
-        resetLevelTimer();
-      }
       placeCircle(true);
       busy = false;
       scheduleAutoMove();
     }, 320);
   }
 
-  // ── Start game ─────────────────────────────────────────────────────────────
+  // ── Start game ───────────────────────────────────────────────────────────────
   function startGame(selectedMode) {
     mode        = selectedMode;
-    circleSize  = (mode === 'endless') ? endlessSize : START_SIZE;
     totalClicks = 0;
-    levelClicks = 0;
+    busy        = false;
     clearTimeout(autoMoveTimeout);
+    clearInterval(survivalInterval);
+    survivalInterval = null;
 
-    bgColor     = COLORS[Math.floor(Math.random() * COLORS.length)];
-    circleColor = pickColor(bgColor);
+    circles.forEach(c => { clearTimeout(c.expiryTimer); c.el.remove(); });
+    circles = [];
+
+    bgColor = COLORS[Math.floor(Math.random() * COLORS.length)];
     document.body.style.background = bgColor;
 
-    modeScreen.style.display    = 'none';
+    modeScreen.style.display     = 'none';
     gameoverScreen.style.display = 'none';
-    gameScreen.style.display    = 'flex';
+    settingsScreen.style.display = 'none';
+    gameScreen.style.display     = 'flex';
 
-    if (mode === 'survival') {
-      timerPill.style.display = 'block';
-      resetLevelTimer();
-    } else {
-      timerPill.style.display = 'none';
-      clearInterval(timerInterval);
+    clickCountEl.textContent = '0';
+
+    if (mode === 'endless') {
+      circleColor = pickColor(bgColor);
+      circleEl.style.display = 'block';
+      healthBarWrap.style.display = 'none';
+      wavePill.style.display = 'none';
+      placeCircle(true);
       scheduleAutoMove();
-    }
+    } else {
+      circleEl.style.display = 'none';
+      healthBarWrap.style.display = 'block';
+      wavePill.style.display = 'block';
+      healthMs         = START_HEALTH;
+      waveNum          = 1;
+      waveStartTime    = Date.now();
+      inWaveTransition = false;
+      wavePill.textContent = 'Wave 1';
+      updateHealthBar();
+      survivalInterval = setInterval(survivalTick, 100);
 
-    updateHUD();
-    placeCircle(true);
+      const cfg = waveCfg(1);
+      for (let i = 0; i < cfg.maxCircles; i++) {
+        setTimeout(() => spawnCircle(), i * 300 + 200);
+      }
+    }
   }
 
-  // ── Settings screen ────────────────────────────────────────────────────────
+  // ── Settings screen (endless) ────────────────────────────────────────────────
   const sizePreview   = document.getElementById('size-preview-circle');
   const sizeValueEl   = document.getElementById('size-value');
   const sizeSlider    = document.getElementById('size-slider');
@@ -679,7 +910,6 @@
   const DUR_MAX = 10;
 
   function updateSizePreview() {
-    // Scale preview so 40% = 140px, proportionally smaller for smaller sizes
     const previewPx = (endlessSize / 40) * 140;
     sizePreview.style.width  = previewPx + 'px';
     sizePreview.style.height = previewPx + 'px';
@@ -721,7 +951,7 @@
     startGame('endless');
   });
 
-  // ── Auto-move timer (endless) ───────────────────────────────────────────────
+  // ── Auto-move timer (endless) ─────────────────────────────────────────────────
   function scheduleAutoMove() {
     clearTimeout(autoMoveTimeout);
     if (mode !== 'endless' || !endlessTimer) return;
@@ -731,13 +961,12 @@
         placeCircle(true);
         scheduleAutoMove();
       } else {
-        // retry shortly if mid-animation
         autoMoveTimeout = setTimeout(scheduleAutoMove, 100);
       }
     }, endlessDuration * 1000);
   }
 
-  // ── Buttons ────────────────────────────────────────────────────────────────
+  // ── Buttons ──────────────────────────────────────────────────────────────────
   document.getElementById('endless-btn').addEventListener('click',  openSettings);
   document.getElementById('survival-btn').addEventListener('click', () => startGame('survival'));
   document.getElementById('play-again-btn').addEventListener('click', () => {
@@ -749,11 +978,17 @@
     }
   });
 
-  // ── Esc → return to front page ────────────────────────────────────────────
+  // ── Esc → return to front page ───────────────────────────────────────────────
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    clearInterval(timerInterval);
+    clearInterval(survivalInterval);
+    survivalInterval = null;
     clearTimeout(autoMoveTimeout);
+    circles.forEach(c => { clearTimeout(c.expiryTimer); c.el.remove(); });
+    circles = [];
+    inWaveTransition = false;
+    healthBarWrap.style.display = 'none';
+    wavePill.style.display = 'none';
     gameScreen.style.display     = 'none';
     settingsScreen.style.display = 'none';
     gameoverScreen.style.display = 'none';
@@ -767,7 +1002,7 @@
     if (ctx.state === 'suspended') ctx.resume();
   }, { once: true });
 
-  // ── Custom cursor ──────────────────────────────────────────────────────────
+  // ── Custom cursor ────────────────────────────────────────────────────────────
   const cursorEl = document.getElementById('cursor');
 
   document.addEventListener('mousemove', e => {
@@ -782,7 +1017,6 @@
   });
   document.addEventListener('mouseup', () => cursorEl.classList.remove('clicking'));
 
-  // Hide cursor when mouse leaves window
   document.addEventListener('mouseleave', () => cursorEl.style.opacity = '0');
   document.addEventListener('mouseenter', () => cursorEl.style.opacity = '1');
 </script>
