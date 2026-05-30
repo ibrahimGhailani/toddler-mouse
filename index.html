@@ -513,13 +513,17 @@
   }
 
   function circlePx() {
-    return (circleSize / 100) * Math.min(window.innerWidth, window.innerHeight);
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    return (circleSize / 100) * Math.min(vw, vh);
   }
 
   function placeCircle(animate) {
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
     const r  = circlePx() / 2;
-    const x  = r + Math.random() * (window.innerWidth  - 2 * r);
-    const y  = r + Math.random() * (window.innerHeight - 2 * r);
+    const x  = r + Math.random() * (vw - 2 * r);
+    const y  = r + Math.random() * (vh - 2 * r);
     const px = circlePx();
 
     circleEl.classList.remove('pop', 'appear');
